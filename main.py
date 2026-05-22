@@ -278,6 +278,350 @@ def icon_attach():
     return _make_pixmap(20, draw)
 
 
+# ─── Win98 Window Decorations ───
+
+class Win98TitleButton(QPushButton):
+    def __init__(self, icon_type: str, parent=None):
+        super().__init__(parent)
+        self._icon_type = icon_type
+        self.setFixedSize(16, 14)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.setStyleSheet(
+            "QPushButton { background: #c0c0c0; border: none; "
+            "border-top: 1px solid #ffffff; border-left: 1px solid #ffffff; "
+            "border-bottom: 1px solid #404040; border-right: 1px solid #404040; "
+            "padding: 0; margin: 0; min-width: 0; min-height: 0; }"
+            "QPushButton:pressed { "
+            "border-top: 1px solid #404040; border-left: 1px solid #404040; "
+            "border-bottom: 1px solid #ffffff; border-right: 1px solid #ffffff; }"
+        )
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing, False)
+        p.setPen(QPen(QColor("#000000"), 1))
+        w, h = self.width(), self.height()
+        cx, cy = w // 2, h // 2
+        if self._icon_type == "close":
+            for d in range(2):
+                p.drawLine(4 + d, 3, w - 5 + d, h - 4)
+                p.drawLine(w - 5 - d, 3, 4 - d, h - 4)
+        elif self._icon_type == "max":
+            p.drawRect(3, 2, w - 7, h - 6)
+            p.drawLine(3, 3, w - 4, 3)
+        elif self._icon_type == "min":
+            p.fillRect(3, h - 5, 6, 2, QColor("#000000"))
+        p.end()
+
+
+class Win98TitleBar(QWidget):
+    def __init__(self, parent_window, title: str = "", show_min: bool = True, show_max: bool = True):
+        super().__init__(parent_window)
+        self._window = parent_window
+        self._dragging = False
+        self._drag_pos = QPoint()
+        self._active = True
+        self._show_max = show_max
+        self.setFixedHeight(18)
+        self.setAutoFillBackground(False)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, True)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(3, 0, 2, 0)
+        layout.setSpacing(0)
+
+        self._icon_label = QLabel()
+        self._icon_label.setFixedSize(16, 16)
+        self._icon_label.setStyleSheet("background: transparent; border: none;")
+        layout.addWidget(self._icon_label)
+
+        layout.addSpacing(2)
+
+        self._title = QLabel(title)
+        self._update_title_style()
+        layout.addWidget(self._title)
+        layout.addStretch()
+
+        if show_min:
+            self._min_btn = Win98TitleButton("min")
+            self._min_btn.clicked.connect(self._window.showMinimized)
+            layout.addWidget(self._min_btn)
+
+        if show_max:
+            self._max_btn = Win98TitleButton("max")
+            self._max_btn.clicked.connect(self._toggle_maximize)
+            layout.addWidget(self._max_btn)
+
+        layout.addSpacing(2)
+
+        self._close_btn = Win98TitleButton("close")
+        self._close_btn.clicked.connect(self._window.close)
+        layout.addWidget(self._close_btn)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing, False)
+        from PySide6.QtGui import QLinearGradient
+        grad = QLinearGradient(0, 0, self.width(), 0)
+        if self._active:
+            grad.setColorAt(0.0, QColor("#000080"))
+            grad.setColorAt(1.0, QColor("#1084d0"))
+        else:
+            grad.setColorAt(0.0, QColor("#808080"))
+            grad.setColorAt(1.0, QColor("#b4b4b4"))
+        p.fillRect(self.rect(), grad)
+        p.end()
+
+    def set_icon(self, icon: QIcon):
+        self._icon_label.setPixmap(icon.pixmap(16, 16))
+
+    def set_title(self, title: str):
+        self._title.setText(title)
+
+    def _update_title_style(self):
+        self._title.setStyleSheet(
+            f"color: {'#ffffff' if self._active else '#c0c0c0'}; "
+            "font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma; "
+            "font-size: 8pt; font-weight: bold; background: transparent; border: none;"
+        )
+
+    def set_active(self, active: bool):
+        self._active = active
+        self._update_title_style()
+        self.update()
+
+    def _toggle_maximize(self):
+        if self._window.isMaximized():
+            self._window.showNormal()
+        else:
+            self._window.showMaximized()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._drag_ready = True
+            self._dragging = False
+            self._press_pos = event.globalPosition().toPoint()
+            self._press_local = event.position().toPoint()
+            self._drag_pos = self._press_pos - self._window.frameGeometry().topLeft()
+
+    def mouseMoveEvent(self, event):
+        if self._drag_ready and not self._dragging:
+            delta = event.globalPosition().toPoint() - self._press_pos
+            if abs(delta.x()) > 3 or abs(delta.y()) > 3:
+                self._dragging = True
+        if self._dragging:
+            if self._window.isMaximized():
+                ratio = self._press_local.x() / self.width()
+                self._window.showNormal()
+                new_x = int(event.globalPosition().x() - self._window.width() * ratio)
+                self._window.move(new_x, int(event.globalPosition().y() - self._press_local.y()))
+                self._drag_pos = event.globalPosition().toPoint() - self._window.frameGeometry().topLeft()
+            self._window.move(event.globalPosition().toPoint() - self._drag_pos)
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        self._drag_ready = False
+        self._dragging = False
+
+    def mouseDoubleClickEvent(self, event):
+        self._dragging = False
+        self._drag_ready = False
+        if self._show_max:
+            self._toggle_maximize()
+
+
+class Win98Frame(QFrame):
+    """Outer raised border frame for Win98 windows."""
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing, False)
+        w, h = self.width(), self.height()
+        # outer highlight
+        p.setPen(QPen(QColor("#ffffff"), 1))
+        p.drawLine(0, 0, w - 2, 0)
+        p.drawLine(0, 0, 0, h - 2)
+        # outer shadow
+        p.setPen(QPen(QColor("#000000"), 1))
+        p.drawLine(w - 1, 0, w - 1, h - 1)
+        p.drawLine(0, h - 1, w - 1, h - 1)
+        # inner highlight
+        p.setPen(QPen(QColor("#dfdfdf"), 1))
+        p.drawLine(1, 1, w - 3, 1)
+        p.drawLine(1, 1, 1, h - 3)
+        # inner shadow
+        p.setPen(QPen(QColor("#808080"), 1))
+        p.drawLine(w - 2, 1, w - 2, h - 2)
+        p.drawLine(1, h - 2, w - 2, h - 2)
+        p.end()
+
+
+def _apply_win98_frame(window, title: str, show_min=True, show_max=True, icon=None):
+    """Apply Win98 frameless decorations to a QMainWindow or QDialog."""
+    window.setWindowFlags(Qt.FramelessWindowHint)
+
+    outer_widget = QWidget()
+    outer_layout = QVBoxLayout(outer_widget)
+    outer_layout.setContentsMargins(3, 3, 3, 3)
+    outer_layout.setSpacing(0)
+
+    frame = Win98Frame()
+    frame_layout = QVBoxLayout(frame)
+    frame_layout.setContentsMargins(2, 0, 2, 2)
+    frame_layout.setSpacing(0)
+
+    title_bar = Win98TitleBar(window, title, show_min=show_min, show_max=show_max)
+    if icon:
+        title_bar.set_icon(icon)
+    frame_layout.addWidget(title_bar)
+
+    outer_layout.addWidget(frame)
+
+    window._win98_title_bar = title_bar
+    window._win98_frame = frame
+    window._win98_frame_layout = frame_layout
+    window._win98_outer_widget = outer_widget
+    window._win98_outer_layout = outer_layout
+    return frame_layout
+
+
+class Win98WindowWrapper(QWidget):
+    """Wraps a QMainWindow or QWidget with Win98 frameless decorations."""
+    def __init__(self, inner_window, title="", show_min=True, show_max=True, icon=None):
+        super().__init__(None, Qt.FramelessWindowHint)
+        self._inner = inner_window
+        self.setStyleSheet("background-color: #c0c0c0;")
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setSpacing(0)
+
+        frame = Win98Frame()
+        frame.setStyleSheet("Win98Frame { background-color: #c0c0c0; }")
+        frame_layout = QVBoxLayout(frame)
+        frame_layout.setContentsMargins(3, 2, 3, 3)
+        frame_layout.setSpacing(0)
+
+        self._title_bar = Win98TitleBar(self, title, show_min=show_min, show_max=show_max)
+        if icon:
+            self._title_bar.set_icon(icon)
+        frame_layout.addWidget(self._title_bar)
+
+        if isinstance(inner_window, QMainWindow):
+            inner_window.setWindowFlags(Qt.Widget)
+            inner_window.menuBar().setStyleSheet(
+                inner_window.menuBar().styleSheet()
+            )
+        inner_window.setParent(frame)
+        frame_layout.addWidget(inner_window, 1)
+
+        layout.addWidget(frame)
+        self.resize(inner_window.size().width() + 10, inner_window.size().height() + 30)
+
+        self._resizing = False
+        self._resize_edge = None
+        self._resize_start = QPoint()
+        self._resize_geom = None
+        self._grip_size = 6
+        self._grips = []
+        for _ in range(4):
+            grip = QWidget(self)
+            grip.setMouseTracking(True)
+            grip.installEventFilter(self)
+            self._grips.append(grip)
+        self._position_grips()
+
+    def _position_grips(self):
+        g = self._grip_size
+        w, h = self.width(), self.height()
+        self._grips[0].setGeometry(0, 0, w, g)          # top
+        self._grips[1].setGeometry(0, h - g, w, g)      # bottom
+        self._grips[2].setGeometry(0, 0, g, h)          # left
+        self._grips[3].setGeometry(w - g, 0, g, h)      # right
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._position_grips()
+
+    def _edge_from_grip(self, grip, pos):
+        g = self._grip_size
+        idx = self._grips.index(grip)
+        if idx == 0:
+            if pos.x() < g: return "top-left"
+            if pos.x() > grip.width() - g: return "top-right"
+            return "top"
+        elif idx == 1:
+            if pos.x() < g: return "bottom-left"
+            if pos.x() > grip.width() - g: return "bottom-right"
+            return "bottom"
+        elif idx == 2:
+            if pos.y() < g: return "top-left"
+            if pos.y() > grip.height() - g: return "bottom-left"
+            return "left"
+        else:
+            if pos.y() < g: return "top-right"
+            if pos.y() > grip.height() - g: return "bottom-right"
+            return "right"
+
+    def _cursor_for_edge(self, edge):
+        return {
+            "left": Qt.SizeHorCursor, "right": Qt.SizeHorCursor,
+            "top": Qt.SizeVerCursor, "bottom": Qt.SizeVerCursor,
+            "top-left": Qt.SizeFDiagCursor, "bottom-right": Qt.SizeFDiagCursor,
+            "top-right": Qt.SizeBDiagCursor, "bottom-left": Qt.SizeBDiagCursor,
+        }.get(edge, Qt.ArrowCursor)
+
+    def eventFilter(self, obj, event):
+        if obj in self._grips:
+            if event.type() == event.Type.MouseMove:
+                if self._resizing:
+                    delta = event.globalPosition().toPoint() - self._resize_start
+                    g = QRect(self._resize_geom)
+                    if "right" in self._resize_edge:
+                        g.setWidth(max(200, g.width() + delta.x()))
+                    if "bottom" in self._resize_edge:
+                        g.setHeight(max(150, g.height() + delta.y()))
+                    if "left" in self._resize_edge:
+                        g.setLeft(min(g.left() + delta.x(), g.right() - 200))
+                    if "top" in self._resize_edge:
+                        g.setTop(min(g.top() + delta.y(), g.bottom() - 150))
+                    self.setGeometry(g)
+                else:
+                    edge = self._edge_from_grip(obj, event.position().toPoint())
+                    obj.setCursor(self._cursor_for_edge(edge))
+                return True
+            elif event.type() == event.Type.MouseButtonPress and event.button() == Qt.LeftButton:
+                self._resize_edge = self._edge_from_grip(obj, event.position().toPoint())
+                self._resizing = True
+                self._resize_start = event.globalPosition().toPoint()
+                self._resize_geom = self.geometry()
+                return True
+            elif event.type() == event.Type.MouseButtonRelease:
+                self._resizing = False
+                self._resize_edge = None
+                return True
+        return super().eventFilter(obj, event)
+
+    def _check_active(self):
+        active = self.isActiveWindow()
+        self._title_bar.set_active(active)
+
+    def changeEvent(self, event):
+        if event.type() == event.Type.ActivationChange:
+            self._check_active()
+        super().changeEvent(event)
+
+    def event(self, event):
+        if event.type() in (event.Type.WindowActivate, event.Type.WindowDeactivate):
+            self._title_bar.set_active(event.type() == event.Type.WindowActivate)
+        return super().event(event)
+
+    def closeEvent(self, event):
+        self._inner.close()
+        event.accept()
+
+
 # ─── Win9x Animations & Effects ───
 
 class SplashScreen(QDialog):
@@ -1734,19 +2078,23 @@ def main():
     splash = SplashScreen(saved)
     splash.exec()
 
-    window = MainWindow()
+    inner = MainWindow()
+    window = Win98WindowWrapper(
+        inner, title="98Mail - Internet Mail Client",
+        icon=icon_mail_new(),
+    )
     window.show()
 
     if splash._client:
-        QTimer.singleShot(100, lambda: window.set_client(splash._client))
+        QTimer.singleShot(100, lambda: inner.set_client(splash._client))
     else:
         if splash._connect_error and saved:
             QTimer.singleShot(200, lambda: (
                 QMessageBox.warning(window, "98Mail", f"Auto-login failed:\n{splash._connect_error}"),
-                window._show_login(),
+                inner._show_login(),
             ))
         else:
-            QTimer.singleShot(200, lambda: window._show_login())
+            QTimer.singleShot(200, lambda: inner._show_login())
 
     sys.exit(app.exec())
 
