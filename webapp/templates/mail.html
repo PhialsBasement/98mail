@@ -18,6 +18,7 @@
       <button id="refresh-btn" type="button">
         <img src="/static/icons/refresh.svg" alt=""> Refresh
       </button>
+      <a href="/games" class="toolbar-link">Games</a>
       <form method="post" action="/logout" class="inline-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <button type="submit">Logout</button>

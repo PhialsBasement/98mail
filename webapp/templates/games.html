@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Games - {{ config.app_name }}{% endblock %}
+{% block content %}
+<div class="app">
+  <div class="win-box raised">
+    <div class="titlebar">
+      <span>{{ config.app_name }} - Games</span>
+      <span class="titlebar-right">{{ username }}</span>
+    </div>
+
+    <div class="toolbar">
+      <a href="/mail" class="toolbar-link">Back to Mail</a>
+      <button id="tab-mines" type="button" class="tab active">Minesweeper</button>
+      <button id="tab-solitaire" type="button" class="tab">Solitaire</button>
+    </div>
+
+    <div class="games-layout">
+      <section id="minesweeper" class="game-panel">
+        <div class="panel-title">Minesweeper</div>
+        <div id="mines-status" class="game-status">Find 10 mines. Left-click to reveal, right-click to flag.</div>
+        <div id="mines-grid" class="mines-grid"></div>
+        <div class="actions">
+          <button id="mines-reset" type="button">New Game</button>
+        </div>
+      </section>
+
+      <section id="solitaire" class="game-panel hidden">
+        <div class="panel-title">Solitaire</div>
+        <div id="solitaire-status" class="game-status">Click the stock to draw.</div>
+
+        <div class="solitaire-top">
+          <div id="stock" class="card-pile"></div>
+          <div id="waste" class="card-pile"></div>
+          <div id="foundations" class="foundations"></div>
+        </div>
+
+        <div id="tableau" class="tableau"></div>
+
+        <div class="actions">
+          <button id="solitaire-reset" type="button">New Game</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="/static/games.js"></script>
+{% endblock %}

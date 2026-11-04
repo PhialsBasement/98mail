@@ -108,6 +108,18 @@ def mail(request: Request):
     )
 
 
+@app.get("/games")
+def games(request: Request):
+    session = get_session(request.cookies.get("session_id"))
+    if session is None:
+        return RedirectResponse("/", status_code=303)
+    return templates.TemplateResponse(
+        request=request,
+        name="games.html",
+        context={"config": config, "username": session.username},
+    )
+
+
 def check_csrf(session: Session, request: Request) -> None:
     token = request.headers.get("X-CSRF-Token", "")
     if not token or not secrets.compare_digest(token, session.csrf_token):

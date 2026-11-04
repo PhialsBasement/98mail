@@ -369,6 +369,170 @@ button:active {
   display: none;
 }
 
+/* ===== Games ===== */
+.toolbar-link,
+.tab {
+  text-decoration: none;
+  color: #000;
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  padding: 4px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.toolbar-link:hover,
+.tab:hover {
+  background: #d8d8d8;
+}
+
+.tab.active {
+  background: #000080;
+  color: #ffffff;
+}
+
+.games-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 10px;
+}
+
+.game-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  padding: 10px;
+}
+
+.game-status {
+  color: #404040;
+  font-size: 12px;
+}
+
+.mines-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(32px, 1fr));
+  gap: 4px;
+  max-width: 520px;
+}
+
+.mine-cell {
+  aspect-ratio: 1;
+  font-size: 16px;
+  font-weight: bold;
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  cursor: pointer;
+}
+
+.mine-cell.revealed {
+  background: #ffffff;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+}
+
+.mine-cell.flag {
+  background: #ffffcc;
+}
+
+.solitaire-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.card-pile,
+.foundation,
+.card {
+  background: #ffffff;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.card-pile {
+  background: #c0c0c0;
+}
+
+.card.selected {
+  background: #000080;
+  color: #ffffff;
+  border-color: #1084d0;
+}
+
+.foundations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.foundation {
+  min-width: 48px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableau {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tableau-pile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tableau-pile .card {
+  width: 100%;
+  text-align: center;
+}
+
+.empty-card {
+  background: #e8e8e8;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #808080;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .mines-grid {
+    grid-template-columns: repeat(8, minmax(24px, 1fr));
+  }
+
+  .tableau {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 /* Tablet: stack messages and preview, keep folders on the left. */
 @media (max-width: 1000px) {
   .mail-main {
