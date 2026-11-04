@@ -170,6 +170,7 @@ button:active {
   gap: 10px;
   padding: 10px;
   min-height: 0;
+  flex: 1;
 }
 
 .mail-main {
@@ -559,9 +560,19 @@ button:active {
 
 /* Phone: stack everything. */
 @media (max-width: 700px) {
+  html,
+  body {
+    min-height: 100vh;
+  }
+
   .app {
-    margin: 10px auto;
+    margin: 0;
     padding: 0 8px;
+    min-height: 100vh;
+  }
+
+  .app .win-box {
+    min-height: 100vh;
   }
 
   .mail-layout {
