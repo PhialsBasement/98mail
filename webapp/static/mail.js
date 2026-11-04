@@ -3,6 +3,7 @@ const state = {
   messages: [],
   current: null,
   selectedUid: null,
+  sending: false,
 };
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
@@ -311,6 +312,13 @@ document.getElementById("compose-cancel").addEventListener("click", closeCompose
 document.getElementById("compose-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.target;
+  const sendButton = form.querySelector('button[type="submit"]');
+
+  if (state.sending) return;
+
+  state.sending = true;
+  sendButton.disabled = true;
+  sendButton.textContent = "Sending...";
 
   try {
     await api("/api/send", { method: "POST", body: new FormData(form) });
@@ -319,6 +327,10 @@ document.getElementById("compose-form").addEventListener("submit", async (event)
     await loadMessages(state.folder);
   } catch (error) {
     setStatus(`Send failed: ${error.message}`, true);
+  } finally {
+    state.sending = false;
+    sendButton.disabled = false;
+    sendButton.textContent = "Send";
   }
 });
 
