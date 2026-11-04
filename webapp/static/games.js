@@ -168,6 +168,7 @@ let solitaire = {
   foundations: [[], [], [], []],
   tableau: [],
   selected: null,
+  dragSource: null,
   done: false,
 };
 
@@ -206,6 +207,7 @@ function initSolitaire() {
     foundations: [[], [], [], []],
     tableau: [],
     selected: null,
+    dragSource: null,
     done: false,
   };
 
@@ -325,7 +327,7 @@ function checkSolitaireWin() {
   }
 
   document.getElementById("solitaire-status").textContent =
-    "Click the stock to draw. Select a top card, then click a foundation or another tableau pile.";
+    "Click the stock to draw. Click a top card to select it, or drag it to a foundation or another tableau pile.";
 }
 
 function renderSolitaire() {
@@ -353,7 +355,11 @@ function renderSolitaire() {
     wasteCard.className = "card";
     if (solitaire.selected?.kind === "waste") wasteCard.classList.add("selected");
     wasteCard.textContent = `${rankLabel(card.rank)}${card.suit}`;
+    wasteCard.draggable = true;
     wasteCard.addEventListener("click", selectWaste);
+    wasteCard.addEventListener("dragstart", () => {
+      solitaire.dragSource = { kind: "waste" };
+    });
     wasteEl.appendChild(wasteCard);
   } else {
     const empty = document.createElement("div");
@@ -369,12 +375,28 @@ function renderSolitaire() {
     const top = solitaire.foundations[suit][solitaire.foundations[suit].length - 1];
     foundation.textContent = top ? `${rankLabel(top.rank)}${top.suit}` : SUITS[suit];
     foundation.addEventListener("click", () => moveToFoundation(suit));
+    foundation.addEventListener("dragover", (event) => event.preventDefault());
+    foundation.addEventListener("drop", (event) => {
+      event.preventDefault();
+      if (!solitaire.dragSource) return;
+      solitaire.selected = solitaire.dragSource;
+      moveToFoundation(suit);
+      solitaire.dragSource = null;
+    });
     foundationsEl.appendChild(foundation);
   }
 
   for (let pileIndex = 0; pileIndex < 7; pileIndex++) {
     const pileEl = document.createElement("div");
     pileEl.className = "tableau-pile";
+    pileEl.addEventListener("dragover", (event) => event.preventDefault());
+    pileEl.addEventListener("drop", (event) => {
+      event.preventDefault();
+      if (!solitaire.dragSource) return;
+      solitaire.selected = solitaire.dragSource;
+      moveToTableau(pileIndex);
+      solitaire.dragSource = null;
+    });
 
     const pile = solitaire.tableau[pileIndex];
 
@@ -397,7 +419,11 @@ function renderSolitaire() {
           if (solitaire.selected?.kind === "tableau" && solitaire.selected.index === pileIndex) {
             cardEl.classList.add("selected");
           }
+          cardEl.draggable = true;
           cardEl.addEventListener("click", () => selectTableau(pileIndex));
+          cardEl.addEventListener("dragstart", () => {
+            solitaire.dragSource = { kind: "tableau", index: pileIndex };
+          });
         }
 
         pileEl.appendChild(cardEl);
