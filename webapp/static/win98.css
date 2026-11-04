@@ -461,6 +461,13 @@ button:active {
   }
 }
 
+/* Desktop/PC: remove the artificial max width. */
+@media (min-width: 1001px) {
+  .app {
+    max-width: 100%;
+  }
+}
+
 /* Very narrow phones: shrink the message list further. */
 @media (max-width: 480px) {
   .toolbar {
