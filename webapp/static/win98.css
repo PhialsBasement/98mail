@@ -1,0 +1,485 @@
+* {
+  box-sizing: border-box;
+  font-family: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Arial, sans-serif;
+  font-size: 13px;
+  color: #000;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #c0c0c0;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 12px;
+}
+
+.win-box {
+  display: flex;
+  flex-direction: column;
+  background: #c0c0c0;
+}
+
+.raised {
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+}
+
+.sunken {
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  background: #ffffff;
+}
+
+.titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.titlebar-right {
+  font-size: 12px;
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.box-body {
+  padding: 16px;
+}
+
+.muted {
+  color: #404040;
+  margin: 0 0 12px 0;
+}
+
+.error {
+  padding: 6px 8px;
+  margin-bottom: 12px;
+  background: #fff0f0;
+  border: 1px solid #cc0000;
+  color: #a00000;
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.login-shell .win-box {
+  width: min(420px, 100%);
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 4px 6px;
+  background: #ffffff;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+  padding: 4px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #404040;
+  border-right: 2px solid #404040;
+}
+
+button:active {
+  border-top: 2px solid #404040;
+  border-left: 2px solid #404040;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  padding: 5px 11px 3px 9px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+}
+
+.toolbar img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+.inline-form {
+  display: inline;
+  margin: 0;
+}
+
+.mail-layout {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+
+.mail-main {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #ffffff;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  overflow: hidden;
+}
+
+.panel-title {
+  flex-shrink: 0;
+  background: #c0c0c0;
+  border-bottom: 1px solid #808080;
+  padding: 5px 8px;
+  font-weight: bold;
+}
+
+.folders {
+  overflow: auto;
+}
+
+#folder-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+#folder-list li {
+  padding: 5px 7px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#folder-list li:hover {
+  background: #e8e8e8;
+}
+
+#folder-list li.active {
+  background: #000080;
+  color: #ffffff;
+}
+
+.messages {
+  overflow: auto;
+}
+
+#message-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#message-table th {
+  background: #c0c0c0;
+  border-top: 1px solid #ffffff;
+  border-left: 1px solid #ffffff;
+  border-bottom: 1px solid #404040;
+  border-right: 1px solid #404040;
+  padding: 4px 6px;
+  text-align: left;
+  font-size: 12px;
+}
+
+#message-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#message-table th:nth-child(1),
+#message-table td:nth-child(1) {
+  width: 24px;
+}
+
+#message-table th:nth-child(2),
+#message-table td:nth-child(2) {
+  width: 130px;
+}
+
+#message-table th:nth-child(4),
+#message-table td:nth-child(4) {
+  width: 120px;
+}
+
+#message-table tr {
+  cursor: pointer;
+}
+
+#message-table tr.loading-row {
+  cursor: default;
+}
+
+#message-table tr.loading-row td {
+  color: #404040;
+  font-style: italic;
+}
+
+#message-table tr:hover {
+  background: #efefef;
+}
+
+#message-table tr.selected {
+  background: #000080;
+  color: #ffffff;
+}
+
+#message-table tr.selected td {
+  border-bottom-color: #1084d0;
+}
+
+.unread {
+  color: #000080;
+  font-weight: bold;
+}
+
+.preview {
+  overflow: hidden;
+}
+
+#preview-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 320px;
+  border: 0;
+  background: #ffffff;
+}
+
+.attachment-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 8px;
+  border-top: 1px solid #808080;
+  background: #c0c0c0;
+}
+
+.attachment-bar a,
+.attachment-bar button {
+  font-size: 12px;
+  padding: 3px 8px;
+}
+
+.status {
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #404040;
+  border-top: 1px solid #808080;
+}
+
+.compose {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+}
+
+.compose-box {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.compose form {
+  padding: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Tablet: stack messages and preview, keep folders on the left. */
+@media (max-width: 1000px) {
+  .mail-main {
+    grid-template-columns: 1fr;
+  }
+
+  .messages {
+    max-height: 300px;
+  }
+
+  .preview {
+    max-height: 480px;
+  }
+
+  #preview-frame {
+    min-height: 260px;
+  }
+}
+
+/* Phone: stack everything. */
+@media (max-width: 700px) {
+  .app {
+    margin: 10px auto;
+    padding: 0 8px;
+  }
+
+  .mail-layout {
+    grid-template-columns: 1fr;
+    padding: 8px;
+  }
+
+  .folders {
+    max-height: 160px;
+  }
+
+  #folder-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  #folder-list li {
+    padding: 4px 8px;
+    border: 1px solid #808080;
+    background: #e8e8e8;
+    white-space: normal;
+  }
+
+  #folder-list li.active {
+    background: #000080;
+    color: #ffffff;
+  }
+
+  #message-table th:nth-child(4),
+  #message-table td:nth-child(4) {
+    display: none;
+  }
+
+  #message-table th:nth-child(2),
+  #message-table td:nth-child(2) {
+    width: 100px;
+  }
+
+  .messages {
+    max-height: 260px;
+  }
+
+  .preview {
+    max-height: 420px;
+  }
+
+  #preview-frame {
+    min-height: 220px;
+  }
+
+  .compose {
+    align-items: flex-start;
+  }
+
+  .compose-box {
+    max-height: 90vh;
+  }
+
+  .toolbar {
+    padding: 6px;
+  }
+
+  .attachment-bar {
+    padding: 6px;
+  }
+}
+
+/* Very narrow phones: shrink the message list further. */
+@media (max-width: 480px) {
+  .toolbar {
+    gap: 6px;
+  }
+
+  .titlebar-right {
+    display: none;
+  }
+
+  #message-table th:nth-child(2),
+  #message-table td:nth-child(2) {
+    display: none;
+  }
+
+  #message-table th:nth-child(3),
+  #message-table td:nth-child(3) {
+    width: auto;
+  }
+
+  .messages {
+    max-height: 220px;
+  }
+
+  #preview-frame {
+    min-height: 200px;
+  }
+}

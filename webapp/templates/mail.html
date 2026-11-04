@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Mail - {{ config.app_name }}{% endblock %}
+{% block head_extra %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+{% block content %}
+<div class="app">
+  <div class="win-box raised">
+    <div class="titlebar">
+      <span>{{ config.app_name }}</span>
+      <span class="titlebar-right">{{ username }}</span>
+    </div>
+
+    <div class="toolbar">
+      <button id="new-btn" type="button">
+        <img src="/static/icons/new.svg" alt=""> New Message
+      </button>
+      <button id="refresh-btn" type="button">
+        <img src="/static/icons/refresh.svg" alt=""> Refresh
+      </button>
+      <form method="post" action="/logout" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit">Logout</button>
+      </form>
+    </div>
+
+    <div class="mail-layout">
+      <aside class="panel folders">
+        <div class="panel-title">Folders</div>
+        <ul id="folder-list"></ul>
+      </aside>
+
+      <div class="mail-main">
+        <section class="panel messages">
+          <div class="panel-title">Messages</div>
+          <table id="message-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>From</th>
+                <th>Subject</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section class="panel preview">
+          <div class="panel-title">Preview</div>
+          <iframe id="preview-frame" sandbox></iframe>
+          <div id="attachment-bar" class="attachment-bar"></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
+</div>
+
+<div id="compose-modal" class="compose hidden">
+  <div class="win-box raised compose-box">
+    <div class="titlebar">Compose</div>
+    <form id="compose-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label>To <input name="to" required></label>
+      <label>Cc <input name="cc"></label>
+      <label>Subject <input name="subject"></label>
+      <label>Body <textarea name="body" rows="8"></textarea></label>
+      <label>Attachments <input type="file" name="files" multiple></label>
+      <input type="hidden" name="in_reply_to" id="in_reply_to">
+      <input type="hidden" name="references" id="references">
+      <div class="actions">
+        <button type="submit">Send</button>
+        <button type="button" id="compose-cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/static/mail.js"></script>
+{% endblock %}
