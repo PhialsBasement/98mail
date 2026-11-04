@@ -413,6 +413,11 @@ button:active {
   padding: 10px;
 }
 
+.game-panel.hidden {
+  display: none;
+}
+
+
 .game-status {
   color: #404040;
   font-size: 12px;

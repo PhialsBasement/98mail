@@ -367,7 +367,7 @@ function renderSolitaire() {
     foundation.type = "button";
     foundation.className = "foundation";
     const top = solitaire.foundations[suit][solitaire.foundations[suit].length - 1];
-    foundation.textContent = top ? `${rankLabel(top.rank)}${top.suit}` : "empty";
+    foundation.textContent = top ? `${rankLabel(top.rank)}${top.suit}` : SUITS[suit];
     foundation.addEventListener("click", () => moveToFoundation(suit));
     foundationsEl.appendChild(foundation);
   }
@@ -435,3 +435,4 @@ document.getElementById("tab-solitaire").addEventListener("click", () => showGam
 
 initMinesweeper();
 initSolitaire();
+showGame("mines");
